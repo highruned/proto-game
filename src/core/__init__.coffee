@@ -1,0 +1,1 @@
+exports.string = require('./string').string
