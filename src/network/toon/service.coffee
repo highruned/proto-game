@@ -1,4 +1,4 @@
-require('../../buffer')
+require('buffertools')
 network = require('../__init__')
 base = require('../service').service
 
@@ -24,35 +24,27 @@ class service extends base
 		service_id = @id
 		request_id = ++@total_requests
 		m1 = params.message.pack()
-		m2 = new Buffer()
-		m2[0] = service_id #m2.writeUInt8(service_id, 0)
-		m2[1] = params.method_id #m2.writeUInt8(params.method_id, 1)
-		#m2.writeUInt16(request_id, 2) # unknown
-		m2[4] = m1.length #m2.writeUInt8(m1.length, 4)
-		
-		m1.copy(m2, 6)
+		m2 = new Buffer([service_id, params.method_id, request_id, 0, 0, m1.length])
+		m3 = m2.concat(m1)
 		
 		console.log 'Sending: ', ' Service: ', service_id, ' Method: ', params.method_id, ' Length: ', m1.length, ' Message: ', m1
 		
 		if params.call
 			@request_callbacks[request_id] = params.call
 		
-		params.endpoint.write(m2)
+		params.endpoint.write(m3)
 	
 	receive: (params) ->
 		result =
 			endpoint: params.endpoint
-			method_id: params.message[0] #method_id: params.message.readUInt8(0)
-			request_id: params.message[1] #request_id: params.message.readUInt8(1)
-			#unknown: params.message.readRawVarint8(2)
-			length: params.message[4] + (params.message[3] << 16) #length: params.message.readRawVarint16(3) 
+			method_id: params.message.readUInt8()
+			request_id: params.message[1]
+			unknown: ServiceID != 0xfe ? params.message.readVarint64() : null
+			length: params.message.readVarint32() #params.message[4] + (params.message[3] << 16)
 			message: params.message.slice(5)
 		
-		console.log 'Received: ', 'Method: ', result.method_id, 'Unknown: ', result.unknown, 'Length: ', result.length, 'Message: ', result.message
+		console.log 'Received: ', 'Method: ', result.method_id, ' Length: ', result.length, 'Message: ', result.message
 		
-		if !@request_handlers[result.method_id]
-			console.log "Cannot find a request handler."
-			
 		if @request_callbacks[result.request_id]
 			result.message = new @response_handlers[result.method_id]().unpack(result.message)
 			call = @request_callbacks[result.request_id]
@@ -63,11 +55,11 @@ class service extends base
 		else
 			result.message = new @request_handlers[result.method_id]().unpack(result.message)
 		
-			@emit(result.message.name.replace('network.connection.', ''), result)
+			@emit(result.message.name.replace('network.toon.', ''), result)
 
-	id: 3
-	hash: 0xb732db32
-	name: 'connection'
+	id: 1
+	hash: 0x83040608
+	name: 'toon'
 	request_callbacks: {}
 	total_requests: 0
 	request_handlers: {}

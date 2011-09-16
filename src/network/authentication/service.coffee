@@ -6,38 +6,27 @@ class service extends base
 	constructor: () ->
 		super()
 		
-		@request_handlers =
-			1: network.connection.echo_request
-			2: network.connection.disconnect_notification
-			3: network.connection.null_request
-			4: network.connection.encrypt_request
-			5: network.connection.disconnect_request
+		#@request_handlers[1] = network.connection.module_load_request
+		#@request_handlers[2] = network.connection.module_message_request
+		@request_handlers[1] = network.authentication.logon_request
 		
-		@response_handlers =
-			1: network.connection.echo_response
-			2: network.connection.null_response
-			3: network.connection.encrypt_response
-			4: network.connection.disconnect_response
+		#@response_handlers[1] = network.connection.module_load_response
+		#@response_handlers[2] = network.connection.module_message_response
+		@response_handlers[1] = network.authentication.logon_response
 		
-	
 	send: (params) ->
 		service_id = @id
 		request_id = ++@total_requests
 		m1 = params.message.pack()
-		m2 = new Buffer()
-		m2[0] = service_id #m2.writeUInt8(service_id, 0)
-		m2[1] = params.method_id #m2.writeUInt8(params.method_id, 1)
-		#m2.writeUInt16(request_id, 2) # unknown
-		m2[4] = m1.length #m2.writeUInt8(m1.length, 4)
-		
-		m1.copy(m2, 6)
+		m2 = new Buffer([service_id, params.method_id, request_id, 0, 0, m1.length])
+		m3 = m2.concat(m1)
 		
 		console.log 'Sending: ', ' Service: ', service_id, ' Method: ', params.method_id, ' Length: ', m1.length, ' Message: ', m1
 		
 		if params.call
 			@request_callbacks[request_id] = params.call
 		
-		params.endpoint.write(m2)
+		params.endpoint.write(m3)
 	
 	receive: (params) ->
 		result =
@@ -48,7 +37,7 @@ class service extends base
 			length: params.message[4] + (params.message[3] << 16) #length: params.message.readRawVarint16(3) 
 			message: params.message.slice(5)
 		
-		console.log 'Received: ', 'Method: ', result.method_id, 'Unknown: ', result.unknown, 'Length: ', result.length, 'Message: ', result.message
+		console.log 'Received: ', 'Method: ', result.method_id, ' Length: ', result.length, 'Message: ', result.message
 		
 		if !@request_handlers[result.method_id]
 			console.log "Cannot find a request handler."
@@ -63,11 +52,11 @@ class service extends base
 		else
 			result.message = new @request_handlers[result.method_id]().unpack(result.message)
 		
-			@emit(result.message.name.replace('network.connection.', ''), result)
+			@emit(result.message.name.replace('network.authentication.', ''), result)
 
-	id: 3
-	hash: 0xb732db32
-	name: 'connection'
+	id: 1
+	hash: 0xdecfc01
+	name: 'authentication'
 	request_callbacks: {}
 	total_requests: 0
 	request_handlers: {}
