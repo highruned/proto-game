@@ -15,4 +15,5 @@ Community-driven Google Protobuf game library.
 
 # Requirements
 
-Node.js >= 0.4.8 recommended. Linux is required for `vendor/protobuf_for_node.node`, otherwise compile it yourself :)
+Node.js >= 0.4.8 recommended. Linux is required for `protobuf_for_node.node`, otherwise you need to compile it yourself :)
+CoffeeScript >= 1.1.0 recommended. You need to install with `npm install coffee-script -g`
