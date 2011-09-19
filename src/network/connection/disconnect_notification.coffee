@@ -1,8 +1,8 @@
 base = require('../message').message
 
 class disconnect_notification extends base
-	constructor: () ->
-		super()
+	constructor: (params) ->
+		super(params)
 		
 		@name = 'network.connection.disconnect_notification'
 

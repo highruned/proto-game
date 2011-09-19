@@ -1,13 +1,9 @@
-base = require('./message').message
+base = require('../message').message
 
 class connect_request extends base
 	constructor: (params) ->
 		super(params)
 		
-		@name = 'network.connect_request'
-		
-	
-	unpack: (message) ->
-		super(message)
+		@name = 'network.connection.connect_request'
 
 exports.connect_request = connect_request

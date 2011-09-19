@@ -1,8 +1,8 @@
 base = require('../message').message
 
 class encrypt_request extends base
-	constructor: () ->
-		super()
+	constructor: (params) ->
+		super(params)
 		
 		@name = 'network.connection.encrypt_request'
 

@@ -1,73 +1,113 @@
-require('buffertools')
-EventEmitter2 = require('EventEmitter2').EventEmitter2
 network = require('./__init__')
+util = require('../util')
+node = require('util')
 
-class service extends EventEmitter2
+class service extends require('events').EventEmitter
 	constructor: () ->
 		super()
+		
+	add_subscriber: (subscriber) ->
+		@subscribers.push(subscriber)
+		
+		@emit 'add_subscriber', subscriber
+		
+	get_hash: () ->
+		return @hash
+		
+		#console.log @name, global.schema.bindings[@name]
+		
+		if !global.schema.bindings[@name]
+			console.error 'Service is invalid or has no bindings.', @name, @
+			
+			process.exit 1
+		
+		name = global.schema.bindings[@name] # convert to custom protocol name
+		name = name.substr(name.lastIndexOf('.') + 1) # cut off namespace
+		#console.log name, @hash.toString(16)
+		#return util.get_service_hash(name)
 	
-		@request_handlers =
-			1: network.connect_request
-			2: network.bind_request
+	send: (message) ->
+		service_id = if message.service_id? then message.service_id else @id
 		
-		@response_handlers =
-			1: network.connect_response
-			2: network.bind_response
+		if !message.payload.pack
+			console.error 'Message has no ability to pack?', message
+			
+			process.exit 1
 		
-	
-	send: (params) ->
-		service_id = if params.service_id? then params.service_id else @id
-		request_id = if params.request_id? then params.request_id else ++@total_requests
+		m1 = message.payload.pack()
+
+		request_id = if message.request_id? then message.request_id else @total_requests
 		
-		m1 = params.message.pack()
-		m2 = new Buffer([service_id, params.method_id, request_id, 0, 0, m1.length])
+		m2 = new Buffer([service_id, message.method_id, request_id, 0, 0, m1.length])
+			
 		m3 = m2.concat(m1)
 		
-		console.log 'Sending: ', ' Service: ', service_id, ' Method: ', params.method_id, ' Length: ', m1.length, ' Message: ', m1
+		console.log 'Sending: ', ' Service: ', service_id, ' Method: ', message.method_id, ' Length: ', m1.length, ' Message: ', m1
+		console.log node.inspect(message.payload, true, 10)
 		
-		if params.call
-			@request_callbacks[request_id] = params.call
+		if message.call
+			@request_callbacks[request_id] = message.call
 		
 		console.log 'Sending [raw]: ', ' Length: ', m3.length, m3
 		
-		params.endpoint.write(m3)
+		message.endpoint.write(m3)
+		
+		++@total_requests
 	
 	receive: (params) ->
-		result =
+		if params.data.length < 4
+			console.log "Header not large enough, continuing."
+			
+			return new Buffer(0)
+		
+		header = params.data.slice(0, 5)
+		
+		message =
 			endpoint: params.endpoint
-			method_id: params.message[0]
-			request_id: params.message[1]
-			length: params.message[4] + (params.message[3] << 16) #params.message.readRawVarint16(2)
-			message: params.message.slice(5)
-			
-		console.log 'Received: ', 'Method: ', result.method_id, ' Length: ', result.length, 'Message: ', result.message
+			method_id: header[0]
+			request_id: header[1]
+			length: header[4] + (header[3] << 16)
 		
-		if !@request_handlers[result.method_id]
-			console.log "Cannot find a request handler."
-		
-		if @request_callbacks[result.request_id]
-			result.message = new @response_handlers[result.method_id]().unpack(result.message)
-				
-			call = @request_callbacks[result.request_id]
-			
-			delete @request_callbacks[result.request_id]
-			
-			call(result)
+		if message.length
+			message.payload = params.data.slice(header.length, message.length + header.length)
 		else
-			# hack
-			if result.method_id == 1 or result.method_id == 2
-				result.message = new @request_handlers[result.method_id]()
-			else
-				result.message = new @request_handlers[result.method_id]().unpack(result.message)
-		
-			@emit(result.message.name.replace('network.', ''), result)
+			message.payload = new Buffer(0)
+			
+		@process_message(message)
+		console.log 'Left over: ',  params.data.slice(header.length + message.length).length
+		return params.data.slice(header.length + message.length) # tell the service manager that we took some off the top
 
-	id: 0
-	hash: 0
-	name: 'default'
+	process_message: (message) ->
+		console.log 'Received: ', 'Service: ', @name, 'Method ID: ', message.method_id, 'Request ID: ', message.request_id, ' Length: ', message.length, 'Payload: ', message.payload
+		
+		if message.method_id == 0
+			message.method_id = 1
+			
+		if !@request_handlers[message.method_id]
+			console.log "Cannot find a request handler."
+			
+			process.exit 1
+		
+		if @request_callbacks[message.request_id]
+			message.payload = new @response_handlers[message.method_id]().unpack(message.payload)
+				
+			call = @request_callbacks[message.request_id]
+			
+			delete @request_callbacks[message.request_id]
+			
+			call(message)
+		else
+			message.payload = new @request_handlers[message.method_id]().unpack(message.payload)
+		
+			@emit(message.payload.name.substr(message.payload.name.lastIndexOf('.') + 1), message) # cut off the namespace and fire the event
+
+	id: null
+	hash: null
+	name: null
 	request_callbacks: {}
 	total_requests: 0
 	request_handlers: {}
 	response_handlers: {}
+	subscribers: []
 		
 exports.service = service

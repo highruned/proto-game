@@ -1,8 +1,8 @@
 base = require('../message').message
 
 class null_request extends base
-	constructor: () ->
-		super()
+	constructor: (params) ->
+		super(params)
 		
 		@name = 'network.connection.null_request'
 

@@ -4,7 +4,7 @@ class schema
 	set_bindings: (@bindings) ->
 	
 	get: (name) ->
-		Schema = require('../vendor/protobuf_for_node').Schema
+		Schema = require('protobuf-for-node').Schema
 		
 		descriptor = new Schema(global.descriptor)
 		

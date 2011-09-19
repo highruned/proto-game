@@ -1,8 +1,8 @@
 base = require('../message').message
 
 class echo_request extends base
-	constructor: () ->
-		super()
+	constructor: (params) ->
+		super(params)
 		
 		@name = 'network.connection.echo_request'
 
