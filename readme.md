@@ -9,7 +9,7 @@ Community-driven Google Protobuf game library.
 * If you aren't on Linux, you need to rebuild the dependencies:  
 	* Install Google Protobuf (in your `/usr/local/bin` directory).
 	* Run `npm install` in the root directory of `proto-game` and it should build a `node_modules` directory.
-	* `cd vendor/protobuf-for-node` and (on Linux/Mac OS X) run `PROTOBUF=/usr/local node-waf configure clean build`
+	* `cd node_modules/protobuf-for-node` and (on Linux/Mac OS X) run `PROTOBUF=/usr/local node-waf configure clean build`
 * Start using your desired client/server.
 
 
