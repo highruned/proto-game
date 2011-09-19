@@ -62,6 +62,12 @@ class visual_equipment extends base
 		super(params)
 		
 		@name = 'network.game.hero.visual_equipment'
+		
+class visual_item extends base
+	constructor: (params) ->
+		super(params)
+		
+		@name = 'network.game.hero.visual_item'
 
 
 class quest_history_entry extends base
@@ -74,6 +80,7 @@ class quest_history_entry extends base
 exports.entity_id = entity_id
 exports.account.banner_configuration = banner_configuration
 exports.hero.visual_equipment = visual_equipment
+exports.hero.visual_item = visual_item
 exports.hero.quest_history_entry = quest_history_entry
 
 #exports.service = require('./service').service

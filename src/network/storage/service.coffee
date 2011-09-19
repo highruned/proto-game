@@ -40,9 +40,13 @@ class service extends base
 			level: 1
 			player_flags: 0x2000002
 			visual_equipment: new network.game.hero.visual_equipment
-			#quest_history: [
-			#	new network.game.hero.quest_history_entry
-			#]
+				visual_item: [
+					new network.game.hero.visual_item
+						gbid: 2288
+				]
+			quest_history: [
+				new network.game.hero.quest_history_entry
+			]
 			last_played_act: 0
 			highest_unlocked_act: 0
 			last_played_difficulty: 0
