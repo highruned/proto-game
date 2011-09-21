@@ -1,10 +1,12 @@
 network = require('../__init__')
 util = require('../../util')
 base = require('../service').service
-
+i = 0
 class service extends base
 	constructor: () ->
 		super()
+		
+		@request_handlers[195] = network.response.handle_request # logout requested
 	
 	send: (message) ->
 		service_id = @id
@@ -16,15 +18,18 @@ class service extends base
 
 		request_id = ++@total_requests
 		
-		if service_id == 0xfe
-			m2 = new Buffer(5)
-			m2[0] = service_id
-			m2[1] = 0
-			m2[2] = request_id
-			m2[3] = 0
-			m2[4] = m1.length 
+		m2 = new Buffer(4)
+		m2[0] = service_id
+		m2[1] = 0
+		m2[2] = request_id
+		m2[3] = 0
 			
-		m3 = m2.concat(m1)
+		bytes = new network.varint
+			value: m1.length
+				
+		console.log 'sending length: ', m2, bytes, bytes.pack().slice(1), m1
+		
+		m3 = m2.concat(bytes.pack().slice(1)).concat(m1)
 		
 		console.log 'Sending: ', ' Service ID: ', service_id, 'Request ID: ', request_id, ' Method ID: ', message.method_id, ' Length: ', m1.length, ' Payload: ', m1
 		
@@ -32,7 +37,11 @@ class service extends base
 		
 		console.log 'Object: ', message.payload
 		
+		#setTimeout ((message, m3) ->
+		#	return () ->
 		message.endpoint.write(m3)
+		#)(message, m3), 5000
+		
 
 	id: 0xfe
 	hash: 0xfffffffe

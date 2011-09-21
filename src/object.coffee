@@ -1,12 +1,10 @@
-jsdom = require('jsdom')
-document = jsdom.jsdom('<html><head></head><body></body></html>')
-window = document.createWindow()
-
-$ = require('jquery').create(window)
-
+merge = require('./merge')
 
 class object extends Object
 
-object::extend = $.extend
+object::merge = (item1, item2) ->
+	item3 = merge.jQuery.extend(true, item1, item2)
+	#console.log 'ZZ', item1, item2, item3
+	return item3
 
 exports.object = object

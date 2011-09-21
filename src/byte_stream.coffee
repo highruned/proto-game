@@ -1,4 +1,4 @@
-class byte_stream
+class byte_stream extends Buffer
   constructor: (@bytes) ->
     @length = @bytes.length
     @index = 0

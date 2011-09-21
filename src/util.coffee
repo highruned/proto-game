@@ -1,5 +1,38 @@
 byte_stream = require('./byte_stream')
 
+# no varint encoder/decoder here seem to work
+
+exports.get_varint32_value_from_bytes = (buffer, pos = 1) ->
+  sum = 0
+  shift = 0
+  
+  while true
+    sum += (buffer[pos] & 0x7f) << shift
+    shift += 7
+    pos += 1
+    
+    if (buffer[pos - 1] & 0x80) == 0
+      break
+      
+  return [sum, pos]
+	
+	
+	
+exports.get_varint32_bytes_from_value = (value) ->
+	bytes = []
+	bits = value & 0x7f
+	value >>= 7
+	console.log bits, value
+	while value
+		console.log 0x80|bits, abc.chr(0x80|bits)
+		bytes.push(abc.chr(0x80|bits))
+		bits = value & 0x7f
+		value >>= 7
+		
+	bytes.push(bits)
+		
+	return bytes
+	
 get_service_hash = (name) ->
 	bytes = new Buffer(name)
 	
@@ -19,7 +52,7 @@ file_bytes = (filepath) ->
 	
 	return string_to_bytes(data)
 	
-parse_protobutter = (bs) ->
+parse_protobuffer = (bs) ->
 	fields = {}
 	while bs.has_bytes()
 		key = bs.read_varint()

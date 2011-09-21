@@ -60,22 +60,34 @@ class service extends require('events').EventEmitter
 			
 			return new Buffer(0)
 		
-		header = params.data.slice(0, 5)
+		header = params.data.slice(0, 4)
+		#abc = Array::slice.call(params.data.slice(3), 0)
+		#console.log 'AWS', abc
+		#[length, length_size] = util.get_varint32_value_from_bytes(abc)
+		###
+		
+		console.log params.data.slice(4), new Buffer([0x08]).concat(params.data.slice(4))
+		a = new network.packet().unpack(new Buffer([0x08]).concat(params.data.slice(4)))
+		length_size = new network.packet({size: a.size}).pack().length - 1
+		console.log a.size, new network.packet({size: a.size}).pack(), new network.packet({size: a.size}).pack().length, length_size
+		###
+		length = params.data.slice(4)[0]
+		length_size = 1
 		
 		message =
 			endpoint: params.endpoint
 			method_id: header[0]
 			request_id: header[1]
-			length: header[4] + (header[3] << 16)
+			length: length
 		
 		if message.length
-			message.payload = params.data.slice(header.length, message.length + header.length)
+			message.payload = params.data.slice(header.length + length_size, message.length + length_size + header.length)
 		else
 			message.payload = new Buffer(0)
-			
+		#console.log header.length + length_size, message.length + header.length
 		@process_message(message)
-		console.log 'Left over: ',  params.data.slice(header.length + message.length).length
-		return params.data.slice(header.length + message.length) # tell the service manager that we took some off the top
+		console.log 'Left over: ',  params.data.slice(header.length + length_size + message.length)
+		return params.data.slice(header.length + length_size + message.length) # tell the service manager that we took some off the top
 
 	process_message: (message) ->
 		console.log 'Received: ', 'Service: ', @name, 'Method ID: ', message.method_id, 'Request ID: ', message.request_id, ' Length: ', message.length, 'Payload: ', message.payload
@@ -99,7 +111,7 @@ class service extends require('events').EventEmitter
 		else
 			message.payload = new @request_handlers[message.method_id]().unpack(message.payload)
 		
-			@emit(message.payload.name.substr(message.payload.name.lastIndexOf('.') + 1), message) # cut off the namespace and fire the event
+			@emit(message.payload.get_definition_name().substr(message.payload.get_definition_name().lastIndexOf('.') + 1), message) # cut off the namespace and fire the event
 
 	id: null
 	hash: null

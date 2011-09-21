@@ -4,13 +4,13 @@ class subscribe_to_friends_request extends base
 	constructor: (params) ->
 		super(params)
 		
-		@name = 'network.friends.subscribe_to_friends_request'
+	get_definition_name: () -> 'network.friends.subscribe_to_friends_request'
 		
 class subscribe_to_friends_response extends base
 	constructor: (params) ->
 		super(params)
 		
-		@name = 'network.friends.subscribe_to_friends_response'
+	get_definition_name: () -> 'network.friends.subscribe_to_friends_response'
   
   
   

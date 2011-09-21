@@ -16,9 +16,10 @@ Buffer.toHex = () ->
 	
 	return r
 
+# none of these work
 # only varint16 kinda works atm
 
-Buffer.readRawVarint8 = (offset, endian) ->
+Buffer.readInt16 = (offset, endian) ->
 	result = 0
 	buffer = @
 	
@@ -26,7 +27,7 @@ Buffer.readRawVarint8 = (offset, endian) ->
 	
 	return result
 
-Buffer.readRawVarint16 = (offset, endian) ->
+Buffer.readInt32 = (offset, endian) ->
 	result = 0
 	buffer = @
 	
@@ -34,13 +35,6 @@ Buffer.readRawVarint16 = (offset, endian) ->
 	
 	return result
 
-Buffer.readRawByte = (offset, endian) ->
-	return @readByte(offset, endian)
-
-Buffer.readByte = (offset, endian) ->
-	result = @[offset]
-
-	return result
 	
 Buffer::writeByte = (value, offset, endian) ->
 	@[offset] = value
@@ -55,21 +49,19 @@ Buffer::readBytes = (offset, size, endian) ->
 		@copy(@, result, 0, offset, offset + size)
 	
 	return result
-	
-Buffer::readRawVarint32 = (offset, endian) ->
-	result = 0
-	shift = 0
-	
-	while true
-		result += (@[offset] & 0x7f) << shift
-		shift += 7
-		offset += 1
-		
-		if (@[offset - 1] & 0x80) == 0
-			break
-	
-	return result
 
+	
+Buffer::writeByte2 = (value, offset, endian) ->
+	@[offset] = value
+	
+Buffer::readByte2 = (offset, endian) ->
+	result = @[offset]
+
+	return result
+	
+Buffer::readRawByte = (offset, endian) ->
+	return @readByte2(offset, endian)
+	
 Buffer::readRawVarint64 = (offset, endian) ->
 	shift = 0
 	result = 0
@@ -78,7 +70,7 @@ Buffer::readRawVarint64 = (offset, endian) ->
 		b = @readRawByte(offset)
 		ba = new Buffer()
 		
-		ba.writeByte(b & 0x7F)
+		ba.writeByte2(b & 0x7F)
  	
 		# shift the byte to its position and set it in the result
 		ba = ba << shift

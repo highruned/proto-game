@@ -4,6 +4,6 @@ class unsubscribe_request extends base
 	constructor: (params) ->
 		super(params)
 		
-		@name = 'network.precense.unsubscribe_request'
+	get_definition_name: () -> 'network.precense.unsubscribe_request'
 
 exports.unsubscribe_request = unsubscribe_request

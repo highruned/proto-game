@@ -5,7 +5,7 @@ util = require('./util')
 
 class program extends require('events').EventEmitter
 	constructor: (params) ->
-		object::extend(true, @, params)
+		object::merge(@, params)
 		
 		@schema = new schema()
 		

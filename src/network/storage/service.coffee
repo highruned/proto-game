@@ -51,49 +51,49 @@ class service extends base
 							dye_type: 0
 							item_effect_type: 0
 							effect_level: 0
-						,
+							,
 						# chest
 						new network.game.hero.visual_item
 							gbid: 0
 							dye_type: 0
 							item_effect_type: 0
 							effect_level: 0
-						,
+							,
 						# feet
 						new network.game.hero.visual_item
 							gbid: 0
 							dye_type: 0
 							item_effect_type: 0
 							effect_level: 0
-						,
+							,
 						# hands
 						new network.game.hero.visual_item
 							gbid: 0
 							dye_type: 0
 							item_effect_type: 0
 							effect_level: 0
-						,
+							,
 						# weapon 1
 						new network.game.hero.visual_item
 							gbid: 4479
 							dye_type: 0
 							item_effect_type: 0
 							effect_level: 0
-						,
+							,
 						# weapon 2
 						new network.game.hero.visual_item
 							gbid: 0
 							dye_type: 0
 							item_effect_type: 0
 							effect_level: 0
-						,
+							,
 						# shoulders
 						new network.game.hero.visual_item
 							gbid: 0
 							dye_type: 0
 							item_effect_type: 0
 							effect_level: 0
-						,
+							,
 						# legs
 						new network.game.hero.visual_item
 							gbid: 0
@@ -117,7 +117,7 @@ class service extends base
 						column_id: op.column_id
 						row_id: op.row_id
 						version: 1
-						data: Array::slice.call(hero_digest.pack(), 0) # to byte array
+						data: hero_digest.pack() # to byte array
 				]
 		
 			operation_results.push(operation_result)
@@ -133,15 +133,15 @@ class service extends base
 			account_digest = new network.game.account.digest
 				version: 1
 				last_played_hero_id: new network.entity_id
-					high: 0
-					low: 0
+					id_high: 0
+					id_low: 0
 				banner_configuration: new network.game.account.banner_configuration
 					background_color_index: 0
-					banner_inx: 0
+					banner_index: 0
 					pattern: 0
 					pattern_color_index: 0
 					placement_index: 0
-					sigin_accent: 0
+					sigil_accent: 0
 					sigil_main: 0
 					sigil_color_index: 0
 					use_sigil_variant: false
@@ -154,10 +154,11 @@ class service extends base
 						column_id: op.column_id
 						row_id: op.row_id
 						version: 1
-						data: Array::slice.call(account_digest.pack(), 0) # to byte array
+						data: account_digest.pack() # to byte array
 				]
 			
 			operation_results.push(operation_result)
+		console.log 'B', operation_results
 			
 		return operation_results
 		
@@ -171,11 +172,11 @@ class service extends base
 					new network.storage.cell
 						column_id: op.column_id
 						row_id: op.row_id
-						version: 1
+						#version: 1
 				]
 			
-		operation_results.push(operation_result)
-			
+			operation_results.push(operation_result)
+		console.log 'B', operation_results
 		return operation_results
 
 	id: 9

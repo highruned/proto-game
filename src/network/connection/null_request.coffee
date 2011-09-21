@@ -4,6 +4,6 @@ class null_request extends base
 	constructor: (params) ->
 		super(params)
 		
-		@name = 'network.connection.null_request'
+	get_definition_name: () -> 'network.connection.null_request'
 
 exports.null_request = null_request

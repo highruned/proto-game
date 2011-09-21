@@ -3,82 +3,88 @@ schema = require('../schema').schema
 message = require('./message').message
 
 
+class packet extends message
+	constructor: (params) ->
+		super(params)
+		
+	get_definition_name: () -> 'network.packet'
+		
+	size: null
+	data: null
+	
+class varint extends message
+	constructor: (params) ->
+		super(params)
+		
+	get_definition_name: () -> 'network.varint'
+	
 class no_data extends message
 	constructor: (params) ->
 		super(params)
 		
-		@name = 'network.no_data'
+	get_definition_name: () -> 'network.no_data'
 
 
 class process_id extends message
 	constructor: (params) ->
 		super(params)
 		
-		@name = 'network.process_id'
+	get_definition_name: () -> 'network.process_id'
 		
-  label: null
-  epoch: null
+	label: null
+	epoch: null
 
 class entity_id extends message
 	constructor: (params) ->
 		super(params)
 		
-		@name = 'network.entity_id'
+	get_definition_name: () -> 'network.entity_id'
 		
-  low: null
-  high: null
+	low: null
+	high: null
 
 class entity extends message
 	constructor: (params) ->
 		super(params)
 		
-		@name = 'network.entity'
-		
-  account_id: null
-  game_account_id: null
-  toon_id: null
-  
+	get_definition_name: () -> 'network.entity'
+	
+	account_id: null
+	game_account_id: null
+	toon_id: null
+	
 class bound_service
 	constructor: (params) ->
 		super(params)
 		
-		@name = 'network.bound_service'
+	get_definition_name: () -> 'network.bound_service'
 	
-  hash: null
-  id: null
+	hash: null
+	id: null
 
 class variant extends message
 	constructor: (params) ->
 		super(params)
 		
-		@name = 'network.variant'
-		
-  bool_value: null
-  int_value: null
-  float_value: null
- 	string_value: null
-  blob_value: null
-  message_value: null
-  fourcc_value: null
-  uint_value: null
-  
+	get_definition_name: () -> 'network.variant'
+	
 class attribute extends message
 	constructor: (params) ->
 		super(params)
 		
-		@name = 'network.attribute'
-		
-  name: null
-  value: null
+	get_definition_name: () -> 'network.attribute'
+	
+	name: null
+	value: null
  
 class attribute_filter extends message
 	constructor: (params) ->
 		super(params)
 		
-		@name = 'network.attribute_filter'
-		
-  op: 1
-  attribute: 2
+	get_definition_name: () -> 'network.attribute_filter'
+	
+	op: 1
+	attribute: 2
 
 attribute_filter::operation =
 	match_none: 0
@@ -86,6 +92,8 @@ attribute_filter::operation =
 	match_all: 2
 	match_all_most_specific: 3
 
+exports.varint = varint
+exports.packet = packet
 exports.message = message
 exports.no_data = no_data
 exports.process_id = process_id

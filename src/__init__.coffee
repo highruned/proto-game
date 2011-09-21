@@ -1,4 +1,7 @@
+
+
 exports.util = require('./util')
+exports.byte_stream = require('./byte_stream')
 exports.schema = require('./schema').schema
 exports.client = require('./client').client
 exports.program = require('./program').program

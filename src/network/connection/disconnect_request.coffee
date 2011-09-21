@@ -4,6 +4,6 @@ class disconnect_request extends base
 	constructor: (params) ->
 		super(params)
 		
-		@name = 'network.connection.disconnect_request'
+	get_definition_name: () -> 'network.connection.disconnect_request'
 
 exports.disconnect_request = disconnect_request

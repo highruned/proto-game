@@ -2,21 +2,21 @@ object = require('../object').object
 
 class message extends object
 	constructor: (params) ->
-		object::extend(true, @, params) # we like to be extended
+		object::merge(@, params) # we like to be extended
 
 	pack: () ->
-		definition = global.schema.get(@name)
+		definition = global.schema.get(@get_definition_name())
 		
 		if !definition
-			console.error 'Could not find message definition by name: ' + @name
-		console.log @
+			console.error 'Could not find message definition by name: ' + @get_definition_name()
+		
 		return definition.serialize(@) # serialize ourself as this definition
 		
 	unpack: (data) ->
-		definition = global.schema.get(@name)
-	
+		definition = global.schema.get(@get_definition_name())
+		
 		if !definition
-			console.error 'Could not find message definition by name or is undefined: ' + @name, global.schema
+			console.error 'Could not find message definition by name or is undefined: ' + @get_definition_name(), global.schema
 		
 		if !data
 			console.error 'Unpack being called with no data, using an empty buffer.'
@@ -25,7 +25,7 @@ class message extends object
 		
 		item = definition.parse(data)
 		
-		object::extend(true, @, item) # extend ourself with this definition
+		object::merge(@, item) # extend ourself with this definition
 		
 		return @
 		

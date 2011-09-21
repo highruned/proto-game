@@ -50,7 +50,7 @@ class service extends base
 			else
 				message.payload = new @request_handlers[message.method_id]().unpack(message.payload)
 		
-			@emit(message.payload.name.substr(message.payload.name.lastIndexOf('.') + 1), message) # cut off the namespace and fire the event
+			@emit(message.payload.get_definition_name().substr(message.payload.get_definition_name().lastIndexOf('.') + 1), message) # cut off the namespace and fire the event
 
 	id: 0
 	hash: 0

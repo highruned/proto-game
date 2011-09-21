@@ -4,7 +4,7 @@ class field_key extends base
 	constructor: (params) ->
 		super(params)
 		
-		@name = 'network.presence.field_key'
+	get_definition_name: () -> 'network.presence.field_key'
 
 	program: null
 	group: null
@@ -15,7 +15,7 @@ class field extends base
 	constructor: (params) ->
 		super(params)
 		
-		@name = 'network.presence.field'
+	get_definition_name: () -> 'network.presence.field'
 		
 	key: null
 	value: null
@@ -25,7 +25,7 @@ class field_operation extends base
 	constructor: (params) ->
 		super(params)
 		
-		@name = 'network.presence.field_operation'
+	get_definition_name: () -> 'network.presence.field_operation'
 		
 	field: null
 	operation: null
@@ -38,7 +38,7 @@ class channel_state extends base
 	constructor: (params) ->
 		super(params)
 		
-		@name = 'network.presence.channel_state'
+	get_definition_name: () -> 'network.presence.channel_state'
 
 	entity_id: null
 	field_operation: null
