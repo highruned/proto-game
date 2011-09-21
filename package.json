@@ -1,16 +1,14 @@
 {
 	"name": "proto-game",
 	"description": "Community-driven Google Protobuf game library.",
-	"version": "0.0.3",
+	"version": "0.0.5",
 	"homepage": "http://github.com/codeweaver/proto-game",
 	"repository": {
 		"url": "http://github.com/codeweaver/proto-game"
 	},
 	"dependencies": {
 		"buffertools": "*",
-		"eventemitter2": "*",
-		"jquery": "*",
-		"jsdom": "*"
+		"eventemitter2": "*"
 	},
 	"author": "Codeweaver <code@weaver.com> (http://code.weaver.com/)",
 	"main": "index",
