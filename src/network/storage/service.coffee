@@ -6,7 +6,10 @@ node = require('util')
 
 class service extends base
 	constructor: () ->
-		super()
+		super
+			id: 9
+			hash: 0xda6e4bb9
+			name: 'network.storage.service'
 		
 		@request_handlers =
 			1: network.storage.execute_request
@@ -178,13 +181,5 @@ class service extends base
 			operation_results.push(operation_result)
 		console.log 'B', operation_results
 		return operation_results
-
-	id: 9
-	hash: 0xda6e4bb9
-	name: 'network.storage.service'
-	request_callbacks: {}
-	total_requests: 0
-	request_handlers: {}
-	response_handlers: {}
 
 exports.service = service

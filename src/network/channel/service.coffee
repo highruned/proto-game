@@ -5,7 +5,10 @@ util = require('../../util')
 
 class service extends base
 	constructor: () ->
-		super()
+		super
+			id: 16
+			hash: 0xb732db32
+			name: 'network.channel.service'
 
 		@on 'add_subscriber', (subscriber) ->
 			add_notification = new network.channel.add_notification
@@ -63,12 +66,5 @@ class service extends base
 				
 			# send
 
-	id: 16
-	hash: 0xb732db32
-	name: 'network.channel.service'
-	request_callbacks: {}
-	total_requests: 0
-	request_handlers: {}
-	response_handlers: {}
 
 exports.service = service

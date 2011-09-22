@@ -4,7 +4,10 @@ base = require('../service').service
 
 class service extends base
 	constructor: () ->
-		super()
+		super
+			id: 0
+			hash: 0
+			name: 'network.connection.service'
 	
 		@request_handlers =
 			1: network.connection.connect_request
@@ -52,12 +55,5 @@ class service extends base
 		
 			@emit(message.payload.get_definition_name().substr(message.payload.get_definition_name().lastIndexOf('.') + 1), message) # cut off the namespace and fire the event
 
-	id: 0
-	hash: 0
-	name: 'network.connection.service'
-	request_callbacks: {}
-	total_requests: 0
-	request_handlers: {}
-	response_handlers: {}
 
 exports.service = service

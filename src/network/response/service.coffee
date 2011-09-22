@@ -4,7 +4,11 @@ base = require('../service').service
 i = 0
 class service extends base
 	constructor: () ->
-		super()
+		super
+			id: 0xfe
+			hash: 0xfffffffe
+			name: 'network.response.service'
+			total_requests: -1
 		
 		@request_handlers[195] = network.response.handle_request # logout requested
 	
@@ -43,12 +47,5 @@ class service extends base
 		#)(message, m3), 5000
 		
 
-	id: 0xfe
-	hash: 0xfffffffe
-	name: 'network.response.service'
-	request_callbacks: {}
-	total_requests: -1
-	request_handlers: {}
-	response_handlers: {}
 
 exports.service = service

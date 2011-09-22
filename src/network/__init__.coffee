@@ -3,6 +3,12 @@ schema = require('../schema').schema
 message = require('./message').message
 
 
+class not_implemented extends message
+	constructor: (params) ->
+		super(params)
+		
+	get_definition_name: () -> 'network.not_implemented'
+	
 class packet extends message
 	constructor: (params) ->
 		super(params)
@@ -92,6 +98,7 @@ attribute_filter::operation =
 	match_all: 2
 	match_all_most_specific: 3
 
+exports.not_implemented = not_implemented
 exports.varint = varint
 exports.packet = packet
 exports.message = message

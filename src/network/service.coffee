@@ -1,10 +1,20 @@
 network = require('./__init__')
 util = require('../util')
 node = require('util')
+object = require('../object').object
 
 class service extends require('events').EventEmitter
-	constructor: () ->
-		super()
+	constructor: (params) ->
+		@id = null
+		@hash = null
+		@name = null
+		@request_callbacks = []
+		@total_requests = 0
+		@request_handlers = []
+		@response_handlers = []
+		@subscribers = []
+		
+		object::merge(@, params) # we like to be extended
 		
 	add_subscriber: (subscriber) ->
 		@subscribers.push(subscriber)
@@ -13,8 +23,6 @@ class service extends require('events').EventEmitter
 		
 	get_hash: () ->
 		return @hash
-		
-		#console.log @name, global.schema.bindings[@name]
 		
 		if !global.schema.bindings[@name]
 			console.error 'Service is invalid or has no bindings.', @name, @
@@ -45,8 +53,8 @@ class service extends require('events').EventEmitter
 		console.log 'Sending: ', ' Service: ', service_id, ' Method: ', message.method_id, ' Length: ', m1.length, ' Message: ', m1
 		console.log node.inspect(message.payload, true, 10)
 		
-		if message.call
-			@request_callbacks[request_id] = message.call
+		#if message.call
+		#	@request_callbacks[request_id] = message.call
 		
 		console.log 'Sending [raw]: ', ' Length: ', m3.length, m3
 		
@@ -61,18 +69,30 @@ class service extends require('events').EventEmitter
 			return new Buffer(0)
 		
 		header = params.data.slice(0, 4)
-		#abc = Array::slice.call(params.data.slice(3), 0)
-		#console.log 'AWS', abc
-		#[length, length_size] = util.get_varint32_value_from_bytes(abc)
-		###
+		console.log new Buffer([0x08]).concat(params.data.slice(4))
 		
-		console.log params.data.slice(4), new Buffer([0x08]).concat(params.data.slice(4))
-		a = new network.packet().unpack(new Buffer([0x08]).concat(params.data.slice(4)))
-		length_size = new network.packet({size: a.size}).pack().length - 1
-		console.log a.size, new network.packet({size: a.size}).pack(), new network.packet({size: a.size}).pack().length, length_size
-		###
+		packet = null
+		i = 1
+		
+		
 		length = params.data.slice(4)[0]
 		length_size = 1
+		
+		try
+			packet = new Buffer([0x08]).concat(params.data.slice(4))
+		catch e
+		
+		while i < 10 && !packet
+			try
+				console.log 'trying', new Buffer([0x08]).concat(params.data.slice(4, i))
+				packet = new network.packet().unpack(new Buffer([0x08]).concat(params.data.slice(4, i)))
+				
+				length = packet.size
+				length_size = i
+				
+			catch e
+				console.log e
+		
 		
 		message =
 			endpoint: params.endpoint
@@ -84,42 +104,29 @@ class service extends require('events').EventEmitter
 			message.payload = params.data.slice(header.length + length_size, message.length + length_size + header.length)
 		else
 			message.payload = new Buffer(0)
-		#console.log header.length + length_size, message.length + header.length
+			
 		@process_message(message)
-		console.log 'Left over: ',  params.data.slice(header.length + length_size + message.length)
+		
+		#console.log 'Left over: ',  params.data.slice(header.length + length_size + message.length)
+		
 		return params.data.slice(header.length + length_size + message.length) # tell the service manager that we took some off the top
 
 	process_message: (message) ->
 		console.log 'Received: ', 'Service: ', @name, 'Method ID: ', message.method_id, 'Request ID: ', message.request_id, ' Length: ', message.length, 'Payload: ', message.payload
-		
-		if message.method_id == 0
-			message.method_id = 1
-			
+
 		if !@request_handlers[message.method_id]
-			console.log "Cannot find a request handler."
+			console.log "Cannot find a request handler.", @request_handlers
 			
 			process.exit 1
 		
-		if @request_callbacks[message.request_id]
-			message.payload = new @response_handlers[message.method_id]().unpack(message.payload)
-				
-			call = @request_callbacks[message.request_id]
-			
-			delete @request_callbacks[message.request_id]
-			
-			call(message)
-		else
-			message.payload = new @request_handlers[message.method_id]().unpack(message.payload)
+		payload = new @request_handlers[message.method_id]()
 		
-			@emit(message.payload.get_definition_name().substr(message.payload.get_definition_name().lastIndexOf('.') + 1), message) # cut off the namespace and fire the event
+		console.log 'Trying to unpack: ', payload.get_definition_name() 
+		
+		if payload.get_definition_name() != 'network.not_implemented' && payload.get_definition_name() != 'network.authentication.logon_request'
+			message.payload = payload.unpack(message.payload)
+	
+		@emit(payload.get_definition_name().substr(payload.get_definition_name().lastIndexOf('.') + 1), message) # cut off the namespace and fire the event
 
-	id: null
-	hash: null
-	name: null
-	request_callbacks: {}
-	total_requests: 0
-	request_handlers: {}
-	response_handlers: {}
-	subscribers: []
 		
 exports.service = service
